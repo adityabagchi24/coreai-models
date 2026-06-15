@@ -143,7 +143,12 @@ def create_clap(
     example_inputs = reference_inputs(model_name, dtype)
     ds = dynamic_shapes() if dynamic else None
 
-    with torch.autocast(device_type="cpu", dtype=dtype):
+    if dtype == torch.float32:
+        with torch.autocast(device_type="cpu", dtype=dtype):
+            exported = torch.export.export(
+                model, args=(), kwargs=example_inputs, dynamic_shapes=ds
+            )
+    else:
         exported = torch.export.export(
             model, args=(), kwargs=example_inputs, dynamic_shapes=ds
         )
